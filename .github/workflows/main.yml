@@ -1,0 +1,33 @@
+name: Main
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Docker With SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DINGTALK_MAIN_HOST }}
+          username: ${{ secrets.DINGTALK_MAIN_USERNAME }}
+          key: ${{ secrets.DINGTALK_MAIN_KEY }}
+          port: ${{ secrets.DINGTALK_HOST_PORT }}
+          script: |
+            if [ ! -d "dingtalk-app-main" ]; then
+              git clone git@github.com:nju-softeng/dingtalk-app-build.git dingtalk-app-main
+            fi
+            git checkout main
+            git pull origin
+            cd dingtalk-app-main
+            chmod +x build.sh
+            ./build.sh -b main -t server

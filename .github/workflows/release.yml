@@ -1,0 +1,33 @@
+name: Release
+on:
+  push:
+    branches: [ release ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ release ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Docker With SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DINGTALK_RELEASE_HOST }}
+          username: ${{ secrets.DINGTALK_RELEASE_USERNAME }}
+          key: ${{ secrets.DINGTALK_RELEASE_KEY }}
+          port: ${{ secrets.DINGTALK_HOST_PORT }}
+          script: |
+            if [ ! -d "dingtalk-app-release" ]; then
+              git clone git@github.com:nju-softeng/dingtalk-app-build.git dingtalk-app-release
+            fi
+            git checkout release
+            git pull origin
+            cd dingtalk-app-release
+            chmod +x build.sh
+            ./build.sh -b main -t server
