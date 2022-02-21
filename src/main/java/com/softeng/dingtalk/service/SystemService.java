@@ -100,9 +100,9 @@ public class SystemService {
         // 职位
         Position position;
         switch (Optional.ofNullable(response.getPosition()).orElse("")){
-            case "本": position = Position.UNDERGRADUATE; break;
-            case "硕": position = Position.POSTGRADUATE;  break;
-            case "博": position = Position.DOCTOR;  break;
+            case "员工": position = Position.UNDERGRADUATE; break;
+            case "经理": position = Position.POSTGRADUATE;  break;
+            case "老板": position = Position.DOCTOR;  break;
             default:   position = Position.OTHER;  break;
         }
 
@@ -143,7 +143,7 @@ public class SystemService {
                 predicates.add(criteriaBuilder.like(root.get("name"), "%" + name + "%"));
             }
             if (!"".equals(position)) {
-                // 根据学位模糊查询
+                // 根据职位模糊查询
                 Position eposition = Stream.of(Position.values())
                         .filter(c -> c.getTitle().equals(position))
                         .findFirst()
@@ -166,6 +166,7 @@ public class SystemService {
      */
     @Cacheable(value="subsidy", key = "#position")
     public double getSubsidy(Position position) {
+        log.info(position.toString());
         return subsidyLevelRepository.getSubsidy(position);
     }
 

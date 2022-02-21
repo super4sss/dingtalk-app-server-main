@@ -21,7 +21,7 @@ public class SubsidyLevel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     /**
-     * 学位
+     * 职位
      */
     private Position position;
 

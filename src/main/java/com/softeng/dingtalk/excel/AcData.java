@@ -18,7 +18,7 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 @HeadFontStyle(fontHeightInPoints = 11)
 public class AcData {
     @ColumnWidth(15)
-    @ExcelProperty("学号")
+    @ExcelProperty("工号")
     private String num;
     @ExcelProperty("姓名")
     private String name;

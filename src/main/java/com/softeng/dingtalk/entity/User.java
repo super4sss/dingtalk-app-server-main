@@ -56,7 +56,7 @@ public class User {
     private String avatar;
 
     /**
-     * 学号
+     * 工号
      */
     private String stuNum;
 

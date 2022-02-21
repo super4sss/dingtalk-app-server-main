@@ -144,6 +144,8 @@ public class AuditService {
      * @return
      */
     public List<ToCheckVO> listPendingApplication(int uid) {
+        log.info(String.valueOf(uid));
+        log.info("++++++++++++++++++");
         List<ToCheckVO> toCheckVOList = dcRecordRepository.listToCheckVO(uid);
         toCheckVOList.forEach(toCheckVO -> {
             toCheckVO.setAcItems(acItemRepository.findAllByDcRecordID(toCheckVO.getId()));

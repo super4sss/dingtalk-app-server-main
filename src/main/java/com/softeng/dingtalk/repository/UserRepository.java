@@ -112,7 +112,7 @@ public interface UserRepository extends CustomizedRepository<User, Integer>, Jpa
 
 
     /**
-     * 查询用户学位
+     * 查询用户职位
      * @param uid
      * @return
      */
