@@ -2,9 +2,7 @@ package com.softeng.dingtalk.service;
 
 import com.softeng.dingtalk.entity.*;
 import com.softeng.dingtalk.repository.*;
-import com.softeng.dingtalk.vo.CheckedVO;
-import com.softeng.dingtalk.vo.ToCheckVO;
-import com.softeng.dingtalk.vo.CheckVO;
+import com.softeng.dingtalk.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,8 +11,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.swing.text.html.Option;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -80,7 +84,7 @@ public class AuditService {
             acItemRepository.deleteByDcRecord(dc);
         }
         // 更新 cvalue, dc, ac
-        dc.update(checkVO.getCvalue(), checkVO.getDc(), checkVO.getAc());
+        dc.update(checkVO.getCvalue(), checkVO.getDc(), checkVO.getAc(), checkVO.getLoadEva(), checkVO.getLoadEvaNum(),checkVO.getObeEva(), checkVO.getIniEva(), checkVO.getTeamEva(), checkVO.getAtteEva(), checkVO.getClotEva(), checkVO.getRepEva(), checkVO.getPerfEva(),checkVO.getPerfEvaNum());
         auditService.saveCheckedAcRecord(checkVO.getAcItems(), dc);
         return dc;
     }
@@ -92,10 +96,23 @@ public class AuditService {
      * @param yearmonth 所在年月
      * @param week 所在周
      */
-    public void updateDcSummary(int uid, int yearmonth, int week) {
+//    public void updateDcSummary(int uid, int yearmonth, int week) {
+//        DcSummary dcSummary = Optional.ofNullable(dcSummaryRepository.getDcSummary(uid, yearmonth))
+//                .orElse(new DcSummary(uid, yearmonth));
+//        dcSummary.updateWeek(week, dcRecordRepository.getUserWeekTotalDc(uid, yearmonth, week));
+//        dcSummaryRepository.save(dcSummary);
+//        performanceService.computeSalary(uid, yearmonth);
+//    }
+    /**
+     * 更新用户指定周的dc值
+     * @param uid 用户id
+     * @param yearmonth 所在年月
+     * @param month 所在月
+     */
+    public void updateDcSummary(int uid, int yearmonth, int month) {
         DcSummary dcSummary = Optional.ofNullable(dcSummaryRepository.getDcSummary(uid, yearmonth))
                 .orElse(new DcSummary(uid, yearmonth));
-        dcSummary.updateWeek(week, dcRecordRepository.getUserWeekTotalDc(uid, yearmonth, week));
+        dcSummary.updateMonth(month, dcRecordRepository.getUserWeekTotalDc(uid, yearmonth, month));
         dcSummaryRepository.save(dcSummary);
         performanceService.computeSalary(uid, yearmonth);
     }
@@ -122,6 +139,22 @@ public class AuditService {
     }
 
 
+
+    /**
+     * 审核人根据时间筛选已审核申请
+     * @param uid
+     * @param yearmonth
+     * @param week
+     * @return
+     */
+//    public List<CheckedVO> listCheckedByDate(int uid, int yearmonth, int week) {
+//        List<CheckedVO> checkedVOS = dcRecordRepository.listCheckedByDate(uid, yearmonth, week);
+//        checkedVOS.forEach(vo -> {
+//            vo.setAcItems(acItemRepository.findAllByDcRecordID(vo.getId()));
+//        });
+//        return checkedVOS;
+//    }
+
     /**
      * 审核人根据时间筛选已审核申请
      * @param uid
@@ -130,7 +163,8 @@ public class AuditService {
      * @return
      */
     public List<CheckedVO> listCheckedByDate(int uid, int yearmonth, int week) {
-        List<CheckedVO> checkedVOS = dcRecordRepository.listCheckedByDate(uid, yearmonth, week);
+        List<CheckedVO> checkedVOS = dcRecordRepository.listCheckedByDate(uid, yearmonth);
+        log.info(checkedVOS.toString());
         checkedVOS.forEach(vo -> {
             vo.setAcItems(acItemRepository.findAllByDcRecordID(vo.getId()));
         });
@@ -148,7 +182,55 @@ public class AuditService {
         toCheckVOList.forEach(toCheckVO -> {
             toCheckVO.setAcItems(acItemRepository.findAllByDcRecordID(toCheckVO.getId()));
         });
+        toCheckVOList.forEach(toCheckVO -> addEvaItems(toCheckVO));
+        log.info(toCheckVOList.toString());
         return toCheckVOList;
+
+    }
+
+    //向toCheckVO添加EvaVOList
+    public ToCheckVO addEvaItems(ToCheckVO dcRecordVO){
+        List<EvaVO> evaItems = new ArrayList<EvaVO>();
+        EvaVO evaItem =new EvaVO(null,null);
+
+//        evaItem.setEvaNam("工作量");
+//        evaItem.setEva(dcRecordVO.getLoadEva());
+//        evaItems.add(evaItem);
+//
+//        evaItem.setEvaNam("工作服从性");
+//        evaItem.setEva(dcRecordVO.getObeEva());
+//
+//        evaItem.setEvaNam("工作主动性");
+//        evaItem.setEva(dcRecordVO.getIniEva());
+//        evaItems.add(evaItem);
+//        evaItem.setEvaNam("团队互助性");
+//        evaItem.setEva(dcRecordVO.getTeamEva());
+//        evaItems.add(evaItem);
+//        evaItem.setEvaNam("考勤情况");
+//        evaItem.setEva(dcRecordVO.getAtteEva());
+//        evaItems.add(evaItem);
+//        evaItem.setEvaNam("穿戴情况");
+//        evaItem.setEva(dcRecordVO.getClotEva());
+//        evaItems.add(evaItem);
+//        evaItem.setEvaNam("周报质量");
+//        evaItem.setEva(dcRecordVO.getRepEva());
+//        evaItems.add(evaItem);
+//        evaItem.setEvaNam("绩效奖励");
+//        evaItem.setEva(dcRecordVO.getPerfEva());
+//        evaItems.add(evaItem);
+        evaItems.add(new EvaVO("工作量",dcRecordVO.getLoadEva()));
+        evaItems.add(new EvaVO("工作服从性",dcRecordVO.getObeEva()));
+        evaItems.add(new EvaVO("工作主动性",dcRecordVO.getIniEva()));
+        evaItems.add(new EvaVO("团队互助性",dcRecordVO.getTeamEva()));
+        evaItems.add(new EvaVO("考勤情况",dcRecordVO.getAtteEva()));
+        evaItems.add(new EvaVO("穿戴情况",dcRecordVO.getClotEva()));
+        evaItems.add(new EvaVO("周报质量",dcRecordVO.getRepEva()));
+        evaItems.add(new EvaVO("绩效奖励",dcRecordVO.getPerfEva()));
+
+
+        dcRecordVO.setEvaItems(evaItems);
+
+        return dcRecordVO;
     }
 
 

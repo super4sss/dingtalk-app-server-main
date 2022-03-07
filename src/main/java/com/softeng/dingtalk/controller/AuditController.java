@@ -50,9 +50,10 @@ public class AuditController {
     @PostMapping("/audit")
     public void submitAuditResult(@Valid @RequestBody CheckVO checkVO) {
         // 持久化审核结果
+        log.info(checkVO.toString());
         DcRecord dc = auditService.updateAuditResult(checkVO);
         // 更新dcsummary
-        auditService.updateDcSummary(dc.getApplicant().getId(), dc.getYearmonth(), dc.getWeek());
+        auditService.updateDcSummary(dc.getApplicant().getId(), dc.getYearmonth(), dc.getMonth());
         // 发送消息
         notifyService.updateDcMessage(dc);
     }
@@ -103,12 +104,25 @@ public class AuditController {
         int dateCode = dateUtils.getDateCode(date);
         int yearmonth = dateCode / 10;
         int week = dateCode % 10;
+        log.info(String.valueOf(yearmonth));
         return auditService.listCheckedByDate(uid, yearmonth, week);
     }
 
 
     /**
      * 根据uid和时间获取周报
+     * @param uid, date
+     * @return java.util.Map
+     * @Date 9:12 PM 2/4/2020
+     **/
+//    @PostMapping("/audit/report/{uid}")
+//    public Map getReport(@PathVariable int uid, @RequestBody LocalDate date) {
+//        String userid = userService.getUserid(uid);
+//        LocalDateTime startTime = date.atTime(8, 0);
+//        return reportApi.getReport(userid, startTime, startTime.plusDays(5));
+//    }
+    /**
+     * 根据uid和时间获取月报
      * @param uid, date
      * @return java.util.Map
      * @Date 9:12 PM 2/4/2020

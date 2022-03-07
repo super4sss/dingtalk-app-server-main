@@ -2,10 +2,7 @@ package com.softeng.dingtalk.repository;
 
 import com.softeng.dingtalk.entity.DcRecord;
 
-import com.softeng.dingtalk.vo.AppliedVO;
-import com.softeng.dingtalk.vo.CheckedVO;
-import com.softeng.dingtalk.vo.DcVO;
-import com.softeng.dingtalk.vo.ToCheckVO;
+import com.softeng.dingtalk.vo.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -30,7 +27,7 @@ public interface DcRecordRepository extends CustomizedRepository<DcRecord, Integ
      * @return java.util.List<com.softeng.dingtalk.entity.DcRecord>
      * @Date 7:49 PM 1/28/2020
      **/
-    @Query("select new com.softeng.dingtalk.vo.CheckedVO(d.id, d.applicant.name, d.applicant.id, d.dvalue, d.cvalue, d.dc, d.ac, d.yearmonth, d.week, d.insertTime, d.weekdate) " +
+    @Query("select new com.softeng.dingtalk.vo.CheckedVO(d.id, d.applicant.name, d.applicant.id, d.dvalue, d.cvalue, d.dc, d.ac, d.yearmonth, d.week, d.insertTime, d.weekdate,d.loadEva,d.loadEvaNum,d.obeEva,d.iniEva,d.teamEva,d.atteEva,d.clotEva,d.repEva,d.perfEva,d.perfEvaNum) " +
             "from DcRecord d where d.auditor.id = :uid and d.status = true order by d.id desc")
     Page<CheckedVO> listChecked(@Param("uid")int uid, Pageable pageable);
 
@@ -41,9 +38,20 @@ public interface DcRecordRepository extends CustomizedRepository<DcRecord, Integ
      * @param week
      * @return
      */
-    @Query("select new com.softeng.dingtalk.vo.CheckedVO(d.id, d.applicant.name, d.applicant.id, d.dvalue, d.cvalue, d.dc, d.ac, d.yearmonth, d.week, d.insertTime, d.weekdate) " +
-            "from DcRecord d where d.auditor.id = :uid and d.yearmonth = :yearmonth and d.week = :week and d.status = true order by d.id desc")
-    List<CheckedVO> listCheckedByDate(@Param("uid")int uid, @Param("yearmonth") int yearmonth, @Param("week") int week);
+//    @Query("select new com.softeng.dingtalk.vo.CheckedVO(d.id, d.applicant.name, d.applicant.id, d.dvalue, d.cvalue, d.dc, d.ac, d.yearmonth, d.week, d.insertTime, d.weekdate,d.loadEva,d.loadEvaNum,d.obeEva,d.iniEva,d.teamEva,d.atteEva,d.clotEva,d.repEva,d.perfEva,d.perfEvaNum) " +
+//            "from DcRecord d where d.auditor.id = :uid and d.yearmonth = :yearmonth and d.week = :week and d.status = true order by d.id desc")
+//    List<CheckedVO> listCheckedByDate(@Param("uid")int uid, @Param("yearmonth") int yearmonth, @Param("week") int week);
+
+
+    /**
+     * 查询审核人指定时间的申请
+     * @param uid
+     * @param yearmonth
+     * @return
+     */
+    @Query("select new com.softeng.dingtalk.vo.CheckedVO(d.id, d.applicant.name, d.applicant.id, d.dvalue, d.cvalue, d.dc, d.ac, d.yearmonth, d.week, d.insertTime, d.weekdate,d.loadEva,d.loadEvaNum,d.obeEva,d.iniEva,d.teamEva,d.atteEva,d.clotEva,d.repEva,d.perfEva,d.perfEvaNum) " +
+            "from DcRecord d where d.auditor.id = :uid and d.yearmonth = :yearmonth  and d.status = true order by d.id desc")
+    List<CheckedVO> listCheckedByDate(@Param("uid")int uid, @Param("yearmonth") int yearmonth);
 
 
     /**
@@ -52,7 +60,7 @@ public interface DcRecordRepository extends CustomizedRepository<DcRecord, Integ
      * @return java.util.List<com.softeng.dingtalk.vo.ApplicationVO>
      * @Date 8:18 PM 1/19/2020
      **/
-    @Query("select new com.softeng.dingtalk.vo.ToCheckVO(d.id, d.applicant.id, d.applicant.name, d.dvalue, d.yearmonth, d.week, d.insertTime, d.weekdate) from DcRecord d where d.auditor.id = :uid and d.status = false order by d.id desc")
+    @Query("select new com.softeng.dingtalk.vo.ToCheckVO(d.id, d.applicant.id, d.applicant.name, d.dvalue, d.yearmonth, d.week, d.insertTime, d.weekdate,d.loadEva,d.loadEvaNum,d.obeEva,d.iniEva,d.teamEva,d.atteEva,d.clotEva,d.repEva,d.perfEva,d.perfEvaNum) from DcRecord d where d.auditor.id = :uid and d.status = false order by d.id desc")
     List<ToCheckVO> listToCheckVO(@Param("uid") int uid);
 
 
@@ -95,10 +103,21 @@ public interface DcRecordRepository extends CustomizedRepository<DcRecord, Integ
      * @return java.lang.Integer
      * @Date 7:47 PM 12/30/2019
      **/
+//    @Query(value =
+//            "SELECT id FROM dc_record WHERE applicant_id = :uid and auditor_id = :aid and yearmonth = :yearmonth and week = :week LIMIT 1",
+//            nativeQuery = true)
+//    Integer isExist(@Param("uid") int uid,@Param("aid") int aid, @Param("yearmonth") int yearmonth, @Param("week") int week);
+
+    /**
+     * 查询是否存在某条记录，
+     * @param uid, aid, yearmonth, week
+     * @return java.lang.Integer
+     * @Date 7:47 PM 12/30/2019
+     **/
     @Query(value =
-            "SELECT id FROM dc_record WHERE applicant_id = :uid and auditor_id = :aid and yearmonth = :yearmonth and week = :week LIMIT 1",
+            "SELECT id FROM dc_record WHERE applicant_id = :uid and auditor_id = :aid and yearmonth = :yearmonth  LIMIT 1",
             nativeQuery = true)
-    Integer isExist(@Param("uid") int uid,@Param("aid") int aid, @Param("yearmonth") int yearmonth, @Param("week") int week);
+    Integer isExist(@Param("uid") int uid,@Param("aid") int aid, @Param("yearmonth") int yearmonth);
 
 
     /**
@@ -146,7 +165,15 @@ public interface DcRecordRepository extends CustomizedRepository<DcRecord, Integ
     Double getUserWeekTotalDc(@Param("uid") int uid, @Param("yearmonth") int yearmonth, @Param("week") int week);
 
 
+    /**
+     * 获取dc_record的指定用户指定日期的某条记录
+     *
+     */
+    @Query("select new com.softeng.dingtalk.vo.EvaExcelVO(d.id, d.applicant.name, d.applicant.id, d.dvalue, d.cvalue, d.dc, d.ac, d.yearmonth, d.week, d.insertTime, d.weekdate,d.loadEva,d.loadEvaNum,d.obeEva,d.iniEva,d.teamEva,d.atteEva,d.clotEva,d.repEva,d.perfEva,d.perfEvaNum) " +
+            "from DcRecord d where d.applicant.id = :uid and d.yearmonth = :yearmonth  and d.status = true order by d.id desc")
+    List<EvaExcelVO> listEvaExcelVO(@Param("uid")int uid, @Param("yearmonth") int yearmonth);
 
-
-
+    /**
+     *
+     */
 }

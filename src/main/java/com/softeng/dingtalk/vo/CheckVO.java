@@ -24,5 +24,17 @@ public class CheckVO {
     @Max(value = 1, message = " DC 值不能大于 1！")
     private double dc;
     private double ac;
+    private String loadEva;
+    private String loadEvaNum;
+    private String obeEva;
+    private String iniEva;
+    private String teamEva;
+    private String atteEva;
+    private String clotEva;
+    private String repEva;
+    private String perfEva;
+    private String perfEvaNum;
+
+
     private List<AcItem> acItems;
 }

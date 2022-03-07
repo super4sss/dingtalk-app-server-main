@@ -19,9 +19,20 @@
         <result column="auditor_name" property="auditorName"/>
         <result column="auditor_id" property="auditorid"/>
         <result column="status" property="status"/>
+        <result column="load_eva" property="loadEva"/>
+        <result column="obe_eva" property="obeEva"/>
+        <result column="ini_eva" property="iniEva"/>
+        <result column="team_eva" property="teamEva"/>
+        <result column="atte_eva" property="atteEva"/>
+        <result column="clot_eva" property="clotEva"/>
+        <result column="rep_eva" property="repEva"/>
+        <result column="perf_eva" property="perfEva"/>
         <collection property="acItems" ofType="com.softeng.dingtalk.vo.AcItemVO" >
             <result column="apply_ac" property="ac"/>
             <result column="reason" property="reason"/>
+            <result column="begin_date" property="beginDate"/>
+            <result column="end_date" property="endDate"/>
+            <result column="task_date" property="taskDate"/>
         </collection>
     </resultMap>
 
@@ -41,7 +52,9 @@
             u.id as auditor_id,
             u.name AS auditor_name,
             a.ac as apply_ac,
-            a.reason
+            a.reason,
+            a.begin_date,
+            a.end_date
         FROM
             ( SELECT * FROM dc_record WHERE applicant_id = #{uid} ORDER BY id DESC LIMIT #{offset}, #{size} ) d
             LEFT JOIN `user` u ON d.auditor_id = u.id

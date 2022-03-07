@@ -54,8 +54,23 @@ public class CheckedVO {
     private List<AcItem> acItems;
 
 
+    private String loadEva;
+    private String loadEvaNum;
+    private String obeEva;
+    private String iniEva;
+    private String teamEva;
+    private String atteEva;
+    private String clotEva;
+    private String repEva;
+    private String perfEva;
+    private String perfEvaNum;
 
-    public CheckedVO(int id, String name, int uid, double dvalue, double cvalue, double dc, double ac, int yearmonth, int week, LocalDateTime insertTime, LocalDate weekdate) {
+
+
+
+    public CheckedVO(int id, String name, int uid, double dvalue, double cvalue, double dc, double ac, int yearmonth, int week, LocalDateTime insertTime, LocalDate weekdate,
+                     String loadEva,String loadEvaNum,String obeEva,String iniEva,String teamEva,String atteEva,String clotEva,String repEva,String perfEva,String perfEvaNum
+    ) {
         this.id = id;
         this.name = name;
         this.uid = uid;
@@ -67,6 +82,16 @@ public class CheckedVO {
         this.week = week;
         this.insertTime = insertTime;
         this.weekdate = weekdate;
+        this.loadEva = loadEva;
+        this.loadEvaNum = loadEvaNum;
+        this.obeEva = obeEva;
+        this.iniEva = iniEva;
+        this.teamEva = teamEva;
+        this.atteEva = atteEva;
+        this.clotEva = clotEva;
+        this.repEva = repEva;
+        this.perfEva = perfEva;
+        this.perfEvaNum = perfEvaNum;
     }
 
 

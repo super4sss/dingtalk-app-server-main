@@ -8,10 +8,9 @@ import com.softeng.dingtalk.mapper.DcRecordMapper;
 import com.softeng.dingtalk.repository.AcItemRepository;
 import com.softeng.dingtalk.repository.AcRecordRepository;
 import com.softeng.dingtalk.repository.DcRecordRepository;
-import com.softeng.dingtalk.vo.ApplyVO;
-import com.softeng.dingtalk.vo.DcRecordVO;
-import com.softeng.dingtalk.vo.UserVO;
+import com.softeng.dingtalk.vo.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,8 +20,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author zhanyeye
@@ -57,8 +59,19 @@ public class ApplicationService {
      * @param acItems 学术学分申请项
      * @param dc 周绩效申请
      */
+//    public void saveAcItemsAndDcRecord(List<AcItem> acItems, DcRecord dc) {
+//        dcRecordRepository.save(dc);
+//        acItems.forEach(acItem -> acItem.setDcRecord(dc));
+//        acItemRepository.saveAll(acItems);
+//    }
+    /**
+     * 持久化dc（考核记录）, ac（任务记录）申请，并将dc作为ac的外键
+     * @param acItems 学术学分申请项
+     * @param dc 周绩效申请
+     */
     public void saveAcItemsAndDcRecord(List<AcItem> acItems, DcRecord dc) {
         dcRecordRepository.save(dc);
+        log.info(acItems.toString());
         acItems.forEach(acItem -> acItem.setDcRecord(dc));
         acItemRepository.saveAll(acItems);
     }
@@ -71,6 +84,7 @@ public class ApplicationService {
      */
     public void addApplication(ApplyVO vo, int uid) {
         int dateCode = dateUtils.getDateCode(vo.getDate());
+        log.info(String.valueOf(dateCode));
         assertUniqueConstraintException(uid, vo.getAuditorid(), vo.getId(), dateCode);
         assertTimeException(vo.getDate());
 
@@ -119,6 +133,7 @@ public class ApplicationService {
     public void auditorUpdateDcRecordAndAcRecords(DcRecord dc, List<AcItem> acItems) {
         dcRecordRepository.save(dc);
         dcRecordRepository.refresh(dc);
+        log.info(acItems.toString());
         applicationService.saveAcRecordsWithDcIdAsForeignKey(acItems, dc);
         auditService.updateDcSummary(dc.getApplicant().getId(), dc.getYearmonth(), dc.getWeek());
         notifyService.updateDcMessage(dc);
@@ -172,7 +187,7 @@ public class ApplicationService {
         // 如果本周已经提交记录 && 不是对已提交的记录进行修改
         if (hasExist != null && hasExist != vid) {
             // 一周只能向审核人提交一次
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "每周只能向同一个审核人提交一次申请");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "每月只能向同一个审核人提交一次申请");
         }
     }
 
@@ -200,8 +215,41 @@ public class ApplicationService {
     public Map listDcRecord(int uid, int page, int size) {
         int offset = (page - 1) * size;
         List<DcRecordVO> dcRecordList = dcRecordMapper.listDcRecordVO(uid, offset, size);
+        log.info(dcRecordList.toString());
+        dcRecordList.stream().map(dcRecord ->addEvaItems(dcRecord)).distinct().collect(Collectors.toList());
         int total = dcRecordMapper.countDcRecordByuid(uid);
         return Map.of("list", dcRecordList, "total", total);
+    }
+    //向dcrecordVO添加EvaVOList
+    public DcRecordVO   addEvaItems(DcRecordVO dcRecordVO){
+        List<EvaVO> evaItems = new ArrayList<EvaVO>();
+        List<TaskItemVO> taskItems = new ArrayList<TaskItemVO>();
+        dcRecordVO.getAcItems().forEach(acItem -> taskItems.add(new TaskItemVO(acItem.getReason(), acItem.getBeginDate().toString(),acItem.getEndDate().toString())) );
+
+
+        evaItems.add(new EvaVO("工作量",dcRecordVO.getLoadEva()));
+        evaItems.add(new EvaVO("工作服从性",dcRecordVO.getObeEva()));
+        evaItems.add(new EvaVO("工作主动性",dcRecordVO.getIniEva()));
+        evaItems.add(new EvaVO("团队互助性",dcRecordVO.getTeamEva()));
+        evaItems.add(new EvaVO("考勤情况",dcRecordVO.getAtteEva()));
+        evaItems.add(new EvaVO("穿戴情况",dcRecordVO.getClotEva()));
+        evaItems.add(new EvaVO("周报质量",dcRecordVO.getRepEva()));
+        evaItems.add(new EvaVO("绩效奖励",dcRecordVO.getPerfEva()));
+
+
+        dcRecordVO.setEvaItems(evaItems);
+        dcRecordVO.setTaskItems(taskItems);
+        return dcRecordVO;
+    }
+
+    /**
+     * 把acItems转为taskItems
+     * @param acItems
+     * @return
+     */
+    private List<TaskItemVO> convet(List<AcItemVO> acItems) {
+
+        return null;
     }
 
 
@@ -213,8 +261,19 @@ public class ApplicationService {
      * @param week 第几周
      * @return
      */
+//    public Integer isExist(int uid, int aid, int yearmonth, int week) {
+//        return dcRecordRepository.isExist(uid, aid, yearmonth, week);
+//    }
+    /**
+     * 用户每月只能向同一审核人提交一个申请，判断数据库中是否已存在
+     * @param uid 申请人id
+     * @param aid 审核人id
+     * @param yearmonth 年月
+     * @param week 第几周
+     * @return
+     */
     public Integer isExist(int uid, int aid, int yearmonth, int week) {
-        return dcRecordRepository.isExist(uid, aid, yearmonth, week);
+        return dcRecordRepository.isExist(uid, aid, yearmonth);
     }
 
 

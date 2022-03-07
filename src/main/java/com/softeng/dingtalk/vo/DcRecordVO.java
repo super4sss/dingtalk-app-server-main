@@ -26,4 +26,14 @@ public class DcRecordVO {
     private double dc;
     private boolean status;
     private List<AcItemVO> acItems;
+    private List<TaskItemVO> taskItems;
+    private List<EvaVO> evaItems;
+    private String loadEva;
+    private String obeEva;
+    private String iniEva;
+    private String teamEva;
+    private String atteEva;
+    private String clotEva;
+    private String repEva;
+    private String perfEva;
 }
