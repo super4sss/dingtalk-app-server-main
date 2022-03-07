@@ -4,8 +4,10 @@ import com.softeng.dingtalk.entity.AcItem;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.validation.constraints.Max;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,8 +26,12 @@ public class ApplyVO {
     @Max(value = 1, message = " C值不能大于 1！")
     private double cvalue;
     private double ac;
+
+//    private String beginTime;
+//    private String endTime;
     /**
      * ac值申请列表
      */
     private List<AcItem> acItems;
+    private List<TaskItemVO> taskItems;
 }

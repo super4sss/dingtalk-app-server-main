@@ -23,6 +23,19 @@ public class ExcelController {
         excelService.writeAcDataByDate(date, response.getOutputStream());
     }
 
+    /**
+     * 审核人打印已审核申请
+     * @param uid
+     * @param yearmonth
+     * @return
+     */
+
+    @PostMapping("/excel/print")
+    public void printExcel(int uid,int yearmonth) throws IOException {
+        excelService.excelFill(uid,yearmonth);
+
+    }
+
 
     @PostMapping("/excel/dc_summary_data")
     public void downloadDcSummaryData(@RequestBody LocalDate date, HttpServletResponse response) throws IOException {

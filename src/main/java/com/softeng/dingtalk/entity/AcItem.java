@@ -8,7 +8,9 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author zhanyeye
@@ -21,14 +23,26 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ToString
 @Deprecated
+/**
+ * 任务
+ */
 public class AcItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(columnDefinition="DECIMAL(10,3)")
     private double ac;
+    //任务描述
     private String reason;
     private boolean status;
+    @Column
+    private String beginDate;
+    private String endDate;
+    @Column
+    private String comTimEva;
+    private String resDifEva;
+    private String resQuaEva;
+
 
     /**
      * ac申请属于的周绩效申请

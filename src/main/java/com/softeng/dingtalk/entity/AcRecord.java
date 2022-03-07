@@ -3,6 +3,7 @@ package com.softeng.dingtalk.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -30,15 +31,29 @@ public class AcRecord {
     @Column(columnDefinition="DECIMAL(10,3)")
     private double ac;
     private String reason;
+
     private int classify;
     @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false, insertable = true)
     private LocalDateTime createTime;
+    @Column
+    private String beginDate;
+    private String endDate;
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
     @ManyToOne(fetch = FetchType.LAZY)
     private User auditor;
 
-    public AcRecord(User user, User auditor, double ac, String reason, int classify, LocalDateTime createTime) {
+    public AcRecord(User user, User auditor, double ac, String reason, int classify, LocalDateTime createTime,String endDate,String beginDate) {
+        this.user = user;
+        this.auditor = auditor;
+        this.ac = ac;
+        this.reason = reason;
+        this.classify = classify;
+        this.createTime = createTime;
+        this.endDate = endDate;
+        this.beginDate = beginDate;
+    }
+        public AcRecord(User user, User auditor, double ac, String reason, int classify, LocalDateTime createTime) {
         this.user = user;
         this.auditor = auditor;
         this.ac = ac;

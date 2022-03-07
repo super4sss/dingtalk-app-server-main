@@ -2,6 +2,9 @@ package com.softeng.dingtalk.vo;
 
 import lombok.Data;
 
+import javax.persistence.Column;
+import java.time.LocalDate;
+
 /**
  * @author zhanyeye
  * @description
@@ -11,4 +14,10 @@ import lombok.Data;
 public class AcItemVO {
     private double ac;
     private String reason;
+    private LocalDate beginDate;
+    private LocalDate endDate;
+    private String comTimEva;
+    private String resDifEva;
+    private String resQuaEva;
+
 }

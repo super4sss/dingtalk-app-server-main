@@ -1,5 +1,6 @@
 package com.softeng.dingtalk.vo;
 
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.softeng.dingtalk.entity.AcItem;
 import lombok.*;
 
@@ -9,7 +10,7 @@ import java.util.List;
 
 /**
  * @author zhanyeye
- * @description 向前端传送审核人已经审核的申请,向后端传送审核人修改的申请
+ * @description 加载评价excel数据
  * @create 1/28/2020 8:11 PM
  */
 @AllArgsConstructor
@@ -17,19 +18,26 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class CheckedVO {
+public class EvaExcelVO {
     /**
      * dcRecord id
      */
+
+    @ExcelProperty
     private int id;
+
     /**
      * 申请人姓名
      */
     private String name;
     /**
+     * 申请人职位
+     */
+    private String position;
+    /**
      * 申请人id
      */
-    private int uid;
+    private int auditorid;
     /**
      * Dedication Value
      */
@@ -51,6 +59,9 @@ public class CheckedVO {
     private int aid;
     private LocalDateTime insertTime;
     private LocalDate weekdate;
+    /**
+     * ac值申请列表
+     */
     private List<AcItem> acItems;
 
 
@@ -68,12 +79,38 @@ public class CheckedVO {
 
 
 
-    public CheckedVO(int id, String name, int uid, double dvalue, double cvalue, double dc, double ac, int yearmonth, int week, LocalDateTime insertTime, LocalDate weekdate,
+    public EvaExcelVO(int id, String name, String position,int auditorid, double dvalue, double cvalue, double dc, double ac, int yearmonth, int week, LocalDateTime insertTime, LocalDate weekdate,
                      String loadEva,String loadEvaNum,String obeEva,String iniEva,String teamEva,String atteEva,String clotEva,String repEva,String perfEva,String perfEvaNum
     ) {
         this.id = id;
         this.name = name;
-        this.uid = uid;
+        this.position =position;
+        this.auditorid = auditorid;
+        this.dvalue = dvalue;
+        this.cvalue = cvalue;
+        this.dc = dc;
+        this.ac = ac;
+        this.yearmonth = yearmonth;
+        this.week = week;
+        this.insertTime = insertTime;
+        this.weekdate = weekdate;
+        this.loadEva = loadEva;
+        this.loadEvaNum = loadEvaNum;
+        this.obeEva = obeEva;
+        this.iniEva = iniEva;
+        this.teamEva = teamEva;
+        this.atteEva = atteEva;
+        this.clotEva = clotEva;
+        this.repEva = repEva;
+        this.perfEva = perfEva;
+        this.perfEvaNum = perfEvaNum;
+    }
+    public EvaExcelVO(int id, String name,int auditorid, double dvalue, double cvalue, double dc, double ac, int yearmonth, int week, LocalDateTime insertTime, LocalDate weekdate,
+                     String loadEva,String loadEvaNum,String obeEva,String iniEva,String teamEva,String atteEva,String clotEva,String repEva,String perfEva,String perfEvaNum
+    ) {
+        this.id = id;
+        this.name = name;
+        this.auditorid = auditorid;
         this.dvalue = dvalue;
         this.cvalue = cvalue;
         this.dc = dc;
@@ -96,3 +133,4 @@ public class CheckedVO {
 
 
 }
+

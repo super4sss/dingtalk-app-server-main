@@ -92,4 +92,6 @@ public class DcSummary {
         this.user = new User(uid);
     }
 
+    public void updateMonth(int month, Double userWeekTotalDc) {
+    }
 }
