@@ -4,17 +4,14 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.softeng.dingtalk.entity.DcSummary;
+import com.softeng.dingtalk.entity.AcItem;
 import com.softeng.dingtalk.excel.AcData;
 import com.softeng.dingtalk.excel.DcSummaryData;
-import com.softeng.dingtalk.kit.ObjKit;
 import com.softeng.dingtalk.mapper.AcRecordMapper;
 import com.softeng.dingtalk.mapper.DcSummaryMapper;
+import com.softeng.dingtalk.repository.AcItemRepository;
 import com.softeng.dingtalk.repository.DcRecordRepository;
-import com.softeng.dingtalk.repository.DcSummaryRepository;
-import com.softeng.dingtalk.vo.CheckedVO;
 import com.softeng.dingtalk.vo.EvaExcelVO;
 import com.softeng.dingtalk.vo.TestFileUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -22,14 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.io.OutputStream;
 import java.time.LocalDate;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -75,39 +69,36 @@ public class ExcelService {
      *
      */
     @Autowired
+    AcItemRepository acItemRepository ;
+
+    @Autowired
     UserService userService;
     public String excelFill(int uid,int yearmonth) {
         // 模板注意 用{} 来表示你要用的变量 如果本来就有"{","}" 特殊字符 用"\{","\}"代替
         // {} 代表普通变量 {.} 代表是list的变量
 //        String templateFileName =
 //                TestFileUtil.getPath() + "demo" + File.separator + "fill" + File.separator + "complex.xlsx";
-        EvaExcelVO evaExcelVO = new EvaExcelVO();
+
+        log.info(String.valueOf(uid));
         String position = userService.getUserDetail(uid).getPosition().getTitle();
-        evaExcelVO =dcRecordRepository.listEvaExcelVO(uid,yearmonth).get(0);
-log.info(evaExcelVO.toString());
-        if (ObjKit.empty(evaExcelVO)){
-           return null;
-        };
+        log.info(position);
+
+
+
+
+
+        EvaExcelVO evaExcelVO = dcRecordRepository.listEvaExcelVO(uid,yearmonth).get(0);
+//        ToCheckVO toCheckVO = dcRecordRepository.listToCheckVO(uid).get(0);
+        log.info("1");
+//        evaExcelVO.setAcItems(acItemRepository.findAllByDcRecordID(evaExcelVO.getId()));
+        log.info("2");
+        List<AcItem> acItems= acItemRepository.findAllByDcRecordID(evaExcelVO.getId());
+
+//log.info(acItemRepository.findAllByDcRecordID(38).toString());
+
         evaExcelVO.setPosition(position);
 
 
-
-
-        Map<String, Object> map = new HashMap();
-//
-//
-//
-        map.put("month","2");
-//        map.put("username",evaExcelVO.getName());
-//        map.put("position",evaExcelVO.getPosition());
-//        map.put("", "");
-//        map.put("", "");
-//        map.put("", "");
-//        map.put("", "");
-//        map.put("", "");
-//        map.put("", "");
-//        map.put("", "");
-//        map.put("", "");
         String templateFileName =
 //                TestFileUtil.getPath()+"绩效评价标准-员工层 - 模板.xlsx";
         TestFileUtil.getPath()+"test.xlsx";
@@ -120,28 +111,38 @@ log.info(evaExcelVO.toString());
         // forceNewRow 如果设置了true,有个缺点 就是他会把所有的数据都放到内存了，所以慎用
         // 简单的说 如果你的模板有list,且list不是最后一行，下面还有数据需要填充 就必须设置 forceNewRow=true 但是这个就会把所有数据放到内存 会很耗内存
         // 如果数据量大 list不是最后一行 参照下一个
-//        FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
+        FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
 //        excelWriter.fill(evaExcelVO.getAcItems(), fillConfig, writeSheet);
-//        excelWriter.fill(data(), fillConfig, writeSheet);
+        ObjectMapper oMapper = new ObjectMapper();
+        //evo转map
+        Map<String, Object> map = oMapper.convertValue(evaExcelVO, Map.class);
+        List<Map> acItemList=new ArrayList<>();
+        acItems.forEach(acItem -> acItemList.add(oMapper.convertValue(acItem,Map.class)));
+//测试速度
+//        Map map =new HashMap();
+//        map.put("loadEva","1");
+//        map.put("obeEva","2");
+//        map.put("iniEva","3");
+//        map.put("teamEva","4");
+        log.info(map.toString());
+        log.info(acItemList.toString());
 
-        ObjectMapper mapper = new ObjectMapper();
 
-        try {
-//            Map m = mapper.readValue(mapper.writeValueAsString(evaExcelVO), HashMap.class);
-//            log.info(m.toString());
+
+//        excelWriter.fill(acItemList, fillConfig, writeSheet);
+
             excelWriter.fill(map, writeSheet);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-//try {
+
+
+
+//        try {
+//            String pdfFileName =TestFileUtil.getPath() + "complexFill" + System.currentTimeMillis() + ".pdf";
+////            FileKit.excel2PDF(fileName,pdfFileName);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
 log.info("111");
-//}catch (Exception e){
-//    e.printStackTrace();
-//}
-//        excelWriter.fill(evaExcelVO, writeSheet);
-//        excelWriter.finish();
-//        EasyExcel.write(fileName).withTemplate(templateFileName).sheet(3).toString();
         return  "success";
     }
 
