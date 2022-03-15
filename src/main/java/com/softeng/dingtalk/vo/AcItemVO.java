@@ -14,8 +14,8 @@ import java.time.LocalDate;
 public class AcItemVO {
     private double ac;
     private String reason;
-    private LocalDate beginDate;
-    private LocalDate endDate;
+    private String beginDate;
+    private String endDate;
     private String comTimEva;
     private String resDifEva;
     private String resQuaEva;

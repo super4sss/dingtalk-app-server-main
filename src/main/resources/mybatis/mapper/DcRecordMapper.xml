@@ -32,7 +32,7 @@
             <result column="reason" property="reason"/>
             <result column="begin_date" property="beginDate"/>
             <result column="end_date" property="endDate"/>
-            <result column="task_date" property="taskDate"/>
+<!--            <result column="task_date" property="taskDate"/>-->
         </collection>
     </resultMap>
 

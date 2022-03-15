@@ -138,7 +138,8 @@ public class BaseApi {
         if (res == null) {
             OapiGetJsapiTicketRequest request = new OapiGetJsapiTicketRequest();
             request.setTopHttpMethod("GET");
-            res = executeRequest(request, "https://oapi.dingtalk.com/get_jsapi_ticket").getTicket();
+            res = executeRequest(request, "https://" +
+                    "/get_jsapi_ticket").getTicket();
 
             cache.put("JsapiTicket", res);
             log.info("重新获取 JsapiTicket 时间: {}", LocalDateTime.now());

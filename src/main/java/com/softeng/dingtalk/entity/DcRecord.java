@@ -3,7 +3,6 @@ package com.softeng.dingtalk.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.softeng.dingtalk.vo.ApplyVO;
-import com.softeng.dingtalk.vo.TaskVO;
 import lombok.*;
 
 import javax.persistence.*;

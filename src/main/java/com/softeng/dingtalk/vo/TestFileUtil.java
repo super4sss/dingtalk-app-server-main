@@ -10,7 +10,8 @@ import lombok.Setter;
 @Setter
 
 public class TestFileUtil {
-    private static final String Path="C://Users//PC5//Desktop//";
+//    private static final String Path="C://Users//38106//Desktop//";
+    private static final String Path="D://test//";
 
     public static String getPath() {
 

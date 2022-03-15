@@ -1,35 +1,34 @@
 package com.softeng.dingtalk.service;
 
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
+
+import cn.hutool.log.StaticLog;
 import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.ExcelWriter;
-import com.alibaba.excel.write.metadata.WriteSheet;
-import com.alibaba.excel.write.metadata.fill.FillConfig;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.softeng.dingtalk.entity.DcSummary;
+import com.github.zhangchunsheng.excel2pdf.EPFactory;
+import com.github.zhangchunsheng.excel2pdf.IExcel2PDF;
+import com.softeng.dingtalk.entity.AcItem;
 import com.softeng.dingtalk.excel.AcData;
 import com.softeng.dingtalk.excel.DcSummaryData;
-import com.softeng.dingtalk.kit.ObjKit;
 import com.softeng.dingtalk.mapper.AcRecordMapper;
 import com.softeng.dingtalk.mapper.DcSummaryMapper;
+import com.softeng.dingtalk.repository.AcItemRepository;
 import com.softeng.dingtalk.repository.DcRecordRepository;
-import com.softeng.dingtalk.repository.DcSummaryRepository;
-import com.softeng.dingtalk.vo.CheckedVO;
 import com.softeng.dingtalk.vo.EvaExcelVO;
 import com.softeng.dingtalk.vo.TestFileUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.OutputStream;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URL;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 
 @Service
@@ -75,77 +74,101 @@ public class ExcelService {
      *
      */
     @Autowired
+    AcItemRepository acItemRepository ;
+
+    @Autowired
     UserService userService;
-    public String excelFill(int uid,int yearmonth) {
-        // 模板注意 用{} 来表示你要用的变量 如果本来就有"{","}" 特殊字符 用"\{","\}"代替
-        // {} 代表普通变量 {.} 代表是list的变量
-//        String templateFileName =
-//                TestFileUtil.getPath() + "demo" + File.separator + "fill" + File.separator + "complex.xlsx";
-        EvaExcelVO evaExcelVO = new EvaExcelVO();
+
+    public String excelFill(int uid, int yearmonth, HttpServletResponse response) throws IOException {
+//        ImportParams params = new ImportParams();
+//        params.setTitleRows(2);
+//        params.setHeadRows(2);
+        //params.setSheetNum(9);
+//        params.setNeedSave(true);
+//        List<EvaExcelVO> list = ExcelImportUtil.importExcel(new File(
+//                "C://Users//38106//Desktop//test.xlsx"), EvaExcelVO.class, params);
+
+        TemplateExportParams exportParams = new TemplateExportParams();
+//        exportParams.setHeadingRows(2);
+//        exportParams.setHeadingStartRow(2);
+        Map<String,Object> value = new HashMap<String, Object>();
+
+                EvaExcelVO evaExcelVO = dcRecordRepository.listEvaExcelVO(uid,yearmonth).get(0);
+        List<AcItem> acItems= acItemRepository.findAllByDcRecordID(evaExcelVO.getId());
         String position = userService.getUserDetail(uid).getPosition().getTitle();
-        evaExcelVO =dcRecordRepository.listEvaExcelVO(uid,yearmonth).get(0);
-log.info(evaExcelVO.toString());
-        if (ObjKit.empty(evaExcelVO)){
-           return null;
-        };
         evaExcelVO.setPosition(position);
 
+                ObjectMapper oMapper = new ObjectMapper();
+        //evo转map
+        Map<String, Object> map = oMapper.convertValue(evaExcelVO, Map.class);
+
+        log.info(map.toString());
+        List<Map> acItemList=new ArrayList<>();
+        acItems.forEach(acItem -> acItemList.add(oMapper.convertValue(acItem,Map.class)));
+        log.info(acItemList.get(0).toString());
+        map.put("items",acItemList);
+//        value.put("map",map);
 
 
 
-        Map<String, Object> map = new HashMap();
-//
-//
-//
-        map.put("month","2");
-//        map.put("username",evaExcelVO.getName());
-//        map.put("position",evaExcelVO.getPosition());
-//        map.put("", "");
-//        map.put("", "");
-//        map.put("", "");
-//        map.put("", "");
-//        map.put("", "");
-//        map.put("", "");
-//        map.put("", "");
-//        map.put("", "");
-        String templateFileName =
-//                TestFileUtil.getPath()+"绩效评价标准-员工层 - 模板.xlsx";
-        TestFileUtil.getPath()+"test.xlsx";
-
-        String fileName = TestFileUtil.getPath() + "complexFill" + System.currentTimeMillis() + ".xlsx";
-
-        ExcelWriter excelWriter = EasyExcel.write(fileName).withTemplate(templateFileName).build();
-        WriteSheet writeSheet = EasyExcel.writerSheet().build();
-        // 这里注意 入参用了forceNewRow 代表在写入list的时候不管list下面有没有空行 都会创建一行，然后下面的数据往后移动。默认 是false，会直接使用下一行，如果没有则创建。
-        // forceNewRow 如果设置了true,有个缺点 就是他会把所有的数据都放到内存了，所以慎用
-        // 简单的说 如果你的模板有list,且list不是最后一行，下面还有数据需要填充 就必须设置 forceNewRow=true 但是这个就会把所有数据放到内存 会很耗内存
-        // 如果数据量大 list不是最后一行 参照下一个
-//        FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
-//        excelWriter.fill(evaExcelVO.getAcItems(), fillConfig, writeSheet);
-//        excelWriter.fill(data(), fillConfig, writeSheet);
-
-        ObjectMapper mapper = new ObjectMapper();
-
-        try {
-//            Map m = mapper.readValue(mapper.writeValueAsString(evaExcelVO), HashMap.class);
-//            log.info(m.toString());
-            excelWriter.fill(map, writeSheet);
-        } catch (Exception e) {
-            e.printStackTrace();
+//        Map<String,Object> obj = new HashMap<String, Object>();
+//        map.put("obj", obj);
+//        obj.put("name", list.size());
+//        exportParams.setTemplateUrl("C://Users//38106//Desktop//test.xlsx");
+        exportParams.setTemplateUrl("D://test.xlsx");
+        exportParams.setColForEach(true);
+        Workbook book = ExcelExportUtil.exportExcel(exportParams,map);
+        String fileName =TestFileUtil.getPath() + "complexFill1" + System.currentTimeMillis() + ".xlsx";
+        FileOutputStream fileOutputStream = new FileOutputStream(new File(fileName)) ;
+        book.write(fileOutputStream);
+//        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
+//        inputStream = this.getClass().getResourceAsStream(fileName);
+//        String name = UUID.randomUUID().toString().substring(0, 10);
+        String name = TestFileUtil.getPath() + "complexFill1" + System.currentTimeMillis()+ ".pdf" ;
+//        FileOutputStream outputStream = new FileOutputStream(new File(fileName));
+//        com.github.zhangchunsheng.excel2pdf.excel2007.Excel2PDF excel2PDF = new com.github.zhangchunsheng.excel2pdf.excel2007.Excel2PDF(inputStream, outputStream);
+//        excel2PDF.convert();
+        IExcel2PDF excel2PdfTool = EPFactory.getEP(fileName, name, TestFileUtil.getPath()  + "SimHei.ttf" );
+        if(excel2PdfTool != null) {
+            excel2PdfTool.convert();
         }
-//try {
 
-log.info("111");
-//}catch (Exception e){
-//    e.printStackTrace();
-//}
-//        excelWriter.fill(evaExcelVO, writeSheet);
-//        excelWriter.finish();
-//        EasyExcel.write(fileName).withTemplate(templateFileName).sheet(3).toString();
-        return  "success";
+        ServletOutputStream out;
+        BufferedInputStream buf;
+        try {
+            response.setContentType("multipart/form-data");
+            response.setHeader("Content-Disposition", "inline;fileName=" + name.substring(name.lastIndexOf("/") + 1));
+            File file = new File(name);
+            //使用输入读取缓冲流读取一个文件输入流
+            InputStream is = new FileInputStream(file);
+            buf = new BufferedInputStream(is);
+            //使用输入读取缓冲流读取一个文件输入流
+//            buf = new BufferedInputStream(url.openStream());
+            //利用response获取一个字节流输出对象
+            out = response.getOutputStream();
+            //定义个数组，由于读取缓冲流中的内容
+            byte[] buffer = new byte[1024];
+            int n;
+            //while循环一直读取缓冲流中的内容到输出的对象中
+            while ((n = buf.read(buffer)) != -1) {
+                out.write(buffer, 0, n);
+            }
+            //写出到请求的地方
+            out.flush();
+            buf.close();
+            out.close();
+        } catch (IOException e) {
+            StaticLog.error("ExportFileUtil.download() IOException", e);
+        } catch (Exception e) {
+            StaticLog.error("Exception", e);
+        }
+
+
+        return null;
     }
 
 
 
 
-}
+    }
+
