@@ -66,6 +66,14 @@ public class UserService {
     public User getUser(String userid) {
         return userRepository.findByUserid(userid);
     }
+ /**
+     * 根据name查询userId
+     * @param userName
+     * @return
+     */
+    public String getUserId(String userName) {
+        return userRepository.findByName(userName);
+    }
 
 
     /**
